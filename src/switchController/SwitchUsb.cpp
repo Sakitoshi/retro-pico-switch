@@ -25,7 +25,6 @@
 
 #include "SwitchUsb.h"
 
-#include "pico/rand.h"
 #include "tusb.h"
 
 static uint16_t _desc_str[32];
@@ -77,13 +76,6 @@ void SwitchUsb::init(Controller *controller) {
   _switchReport.batteryConnection = 0x81;
   _switchRequestReport[0] = 0x80;
   _switchRequestReport[1] = 0x01;
-  uint8_t newAddr[] = {0x7c,
-                       0xbb,
-                       0x8a,
-                       (uint8_t)(get_rand_32() % 0xff),
-                       (uint8_t)(get_rand_32() % 0xff),
-                       (uint8_t)(get_rand_32() % 0xff)};
-  memcpy(_addr, newAddr, 6);
   tusb_init();
   while (true) {
     tud_task();
