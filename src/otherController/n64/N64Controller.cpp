@@ -100,7 +100,7 @@ void N64Controller::getSwitchReport(SwitchReport *switchReport) {
   uint16_t lx = convertToSwitchJoystick(_controllerState[2], &_minX, &_maxX);
   uint16_t ly = convertToSwitchJoystick(_controllerState[3], &_minY, &_maxY);
   switchReport->l[0] = lx & 0xff;
-  switchReport->l[1] = ((ly & 0xff) << 4) | (lx >> 8);
+  switchReport->l[1] = ((ly & 0xf) << 4) | (lx >> 8);
   switchReport->l[2] = ly >> 4;
 
   uint16_t rx = SWITCH_JOYSTICK_MID;
@@ -169,7 +169,7 @@ void N64Controller::getSwitchReport(SwitchReport *switchReport) {
       break;
   }
   switchReport->r[0] = rx & 0xff;
-  switchReport->r[1] = ((ry & 0xff) << 4) | (rx >> 8);
+  switchReport->r[1] = ((ry & 0xf) << 4) | (rx >> 8);
   switchReport->r[2] = ry >> 4;
 
   return;
