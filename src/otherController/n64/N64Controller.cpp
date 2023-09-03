@@ -52,26 +52,37 @@ void N64Controller::setRumble(bool rumble) {
 }
 
 void N64Controller::getSwitchReport(SwitchReport *switchReport) {
+  initController();
   updateState();
 
   if (N64_MASK_START & _controllerState[0] && N64_MASK_C_DOWN & _controllerState[1] && N64_MASK_C_LEFT & _controllerState[1]) {
-      if (timeHeld == 300 && cMode == 0) cMode = 1;
+      if (timeHeld == threeSeconds && cMode == 0) cMode = 1;
       timeHeld++;
   } else if (N64_MASK_START & _controllerState[0] && N64_MASK_C_UP & _controllerState[1] && N64_MASK_C_RIGHT & _controllerState[1]) {
-      if (timeHeld == 300 && cMode == 1) cMode = 0;
+      if (timeHeld == threeSeconds && cMode == 1) cMode = 0;
+      timeHeld++;
+  } else if (N64_MASK_START & _controllerState[0] && N64_MASK_C_DOWN & _controllerState[1] && N64_MASK_C_RIGHT & _controllerState[1]) {
+      if (timeHeld == threeSeconds && allStarsMode == 0) allStarsMode = 1;
+      timeHeld++;
+  } else if (N64_MASK_START & _controllerState[0] && N64_MASK_C_UP & _controllerState[1] && N64_MASK_C_LEFT & _controllerState[1]) {
+      if (timeHeld == threeSeconds && allStarsMode == 1) allStarsMode = 0;
       timeHeld++;
   } else {
      timeHeld = 0;
   }
 
+
   switchReport->buttons[0] =
       (N64_MASK_R & _controllerState[1] ? SWITCH_MASK_R : 0) |
       (N64_MASK_A & _controllerState[0] ? SWITCH_MASK_A : 0) |
-      (N64_MASK_B & _controllerState[0] ? SWITCH_MASK_B : 0) |
-      (N64_MASK_C_DOWN & _controllerState[1] && cMode == 1 ? SWITCH_MASK_X : 0) |
+      (N64_MASK_B & _controllerState[0] && allStarsMode == 0 ? SWITCH_MASK_B : 0) |
+      (N64_MASK_C_DOWN & _controllerState[1] && cMode == 1 && allStarsMode == 0 ? SWITCH_MASK_X : 0) |
       (N64_MASK_C_LEFT & _controllerState[1] && cMode == 1 ? SWITCH_MASK_Y : 0) |
-      (N64_MASK_C_UP & _controllerState[1] && N64_MASK_C_DOWN & _controllerState[1] && cMode == 0 ? SWITCH_MASK_X : 0) |
-      (N64_MASK_C_LEFT & _controllerState[1] && N64_MASK_C_RIGHT & _controllerState[1] && cMode == 0 ? SWITCH_MASK_Y : 0);
+      (N64_MASK_C_UP & _controllerState[1] && N64_MASK_C_DOWN & _controllerState[1] && cMode == 0 && allStarsMode == 0 ? SWITCH_MASK_X : 0) |
+      (N64_MASK_C_LEFT & _controllerState[1] && N64_MASK_C_RIGHT & _controllerState[1] && cMode == 0 ? SWITCH_MASK_Y : 0) |
+      (N64_MASK_B & _controllerState[0] && allStarsMode == 1 ? SWITCH_MASK_X : 0) |
+      (N64_MASK_C_DOWN & _controllerState[1] && cMode == 1 && allStarsMode == 1 ? SWITCH_MASK_B : 0) |
+      (N64_MASK_C_UP & _controllerState[1] && N64_MASK_C_DOWN & _controllerState[1] && cMode == 0 && allStarsMode == 1 ? SWITCH_MASK_B : 0);
 
   switchReport->buttons[1] =
       (N64_MASK_RESET & _controllerState[1] ? SWITCH_MASK_HOME : 0) |
@@ -97,10 +108,10 @@ void N64Controller::getSwitchReport(SwitchReport *switchReport) {
 
   uint16_t rx;
   uint16_t ry;
-  rx |=
+  rx =
       (N64_MASK_C_RIGHT & _controllerState[1] && cMode == 0 ? SWITCH_JOYSTICK_MAX : SWITCH_JOYSTICK_MIN) |
       (N64_MASK_C_LEFT & _controllerState[1] && cMode == 0 ? SWITCH_JOYSTICK_MIN : SWITCH_JOYSTICK_MID);
-  ry |=
+  ry =
       (N64_MASK_C_UP & _controllerState[1] && cMode == 0 ? SWITCH_JOYSTICK_MAX : SWITCH_JOYSTICK_MIN) |
       (N64_MASK_C_DOWN & _controllerState[1] && cMode == 0 ? SWITCH_JOYSTICK_MIN : SWITCH_JOYSTICK_MID);
   switchReport->r[0] = rx & 0xff;

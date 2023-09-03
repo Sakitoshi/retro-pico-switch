@@ -22,6 +22,7 @@ class N64Controller : public Controller {
   double _minY = -0.5;
   uint16_t timeHeld = 0;
   uint8_t cMode = 0;
+  uint8_t allStarsMode = 0;
 };
 
 #define N64_JOYSTICK_MAX 0x80
@@ -45,5 +46,11 @@ class N64Controller : public Controller {
 #define N64_MASK_C_RIGHT 0x1
 #define N64_MASK_C_DOWN (0x1 << 2)
 #define N64_MASK_C_LEFT (0x1 << 1)
+
+#ifdef SWITCH_BLUETOOTH
+#define threeSeconds 600
+#else
+#define threeSeconds 300
+#endif
 
 #endif
