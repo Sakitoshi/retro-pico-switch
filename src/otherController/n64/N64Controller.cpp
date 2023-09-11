@@ -1,6 +1,7 @@
 #include "N64Controller.h"
 
 #include <string.h>
+#include <cmath>
 
 #include "Controller.pio.h"
 #include "pico/stdlib.h"
@@ -67,10 +68,15 @@ void N64Controller::getSwitchReport(SwitchReport *switchReport) {
   } else if (N64_MASK_START & _controllerState[0] && N64_MASK_C_UP & _controllerState[1] && N64_MASK_C_LEFT & _controllerState[1]) {
       if (timeHeld == threeSeconds && allStarsMode == 1) allStarsMode = 0;
       timeHeld++;
+  } else if (N64_MASK_START & _controllerState[0] && N64_MASK_DPAD_UP & _controllerState[0]) {
+      if (timeHeld == threeSeconds && stickMode == 0) stickMode = 1;
+      timeHeld++;
+  } else if (N64_MASK_START & _controllerState[0] && N64_MASK_DPAD_DOWN & _controllerState[0]) {
+      if (timeHeld == threeSeconds && stickMode == 1) stickMode = 0;
+      timeHeld++;
   } else {
      timeHeld = 0;
   }
-
 
   switchReport->buttons[0] =
       (N64_MASK_R & _controllerState[1] ? SWITCH_MASK_R : 0) |
@@ -87,7 +93,7 @@ void N64Controller::getSwitchReport(SwitchReport *switchReport) {
   switchReport->buttons[1] =
       (N64_MASK_RESET & _controllerState[1] ? SWITCH_MASK_HOME : 0) |
       (N64_MASK_START & _controllerState[0] ? SWITCH_MASK_PLUS : 0) |
-      (N64_MASK_L & _controllerState[1] && N64_MASK_R & _controllerState[1] && (N64_MASK_Z & _controllerState[0]) ? SWITCH_MASK_MINUS : 0) |
+      (N64_MASK_L & _controllerState[1] && N64_MASK_R & _controllerState[1] && N64_MASK_Z & _controllerState[0] ? SWITCH_MASK_MINUS : 0) |
       (N64_MASK_C_UP & _controllerState[1] && cMode == 1 ? SWITCH_MASK_L3 : 0) |
       (N64_MASK_C_RIGHT & _controllerState[1] && cMode == 1 ? SWITCH_MASK_R3 : 0);
 
@@ -125,5 +131,8 @@ uint16_t N64Controller::convertToSwitchJoystick(int8_t axisPos, double *minAxis,
                                                 double *maxAxis) {
   double unscaledAxisPos = axisPos / (double)N64_JOYSTICK_MAX;
   double scaledAxisPos = getScaledAnalogAxis(unscaledAxisPos, minAxis, maxAxis);
-  return scaledAxisPos * SWITCH_JOYSTICK_MID + SWITCH_JOYSTICK_MID + 1;
+  double recalcAxisPos;
+  recalcAxisPos = (stickMode == 0 ? scaledAxisPos : 
+                  (scaledAxisPos >= 0.01 ? copysign(sqrt(fabs(scaledAxisPos)), scaledAxisPos) : scaledAxisPos));
+  return recalcAxisPos * SWITCH_JOYSTICK_MID + SWITCH_JOYSTICK_MID + 1;
 }

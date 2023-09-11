@@ -21,6 +21,7 @@ class N64Controller : public Controller {
   double _maxY = 0.5;
   double _minY = -0.5;
   uint16_t timeHeld = 0;
+  uint8_t stickMode = 0;
   uint8_t cMode = 0;
   uint8_t allStarsMode = 0;
 };
