@@ -40,7 +40,7 @@ void tud_hid_set_report_cb(uint8_t itf, uint8_t report_id,
 
 int main() {
   stdio_init_all();
-
+  sleep_ms(200);
   InitParams *initParams = new InitParams();
   initParams->pin = 18;
   Controller::initPio(initParams);
