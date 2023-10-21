@@ -133,6 +133,6 @@ uint16_t N64Controller::convertToSwitchJoystick(int8_t axisPos, double *minAxis,
   double scaledAxisPos = getScaledAnalogAxis(unscaledAxisPos, minAxis, maxAxis);
   double recalcAxisPos;
   recalcAxisPos = (stickMode == 0 ? scaledAxisPos : 
-                  (scaledAxisPos >= 0.01 ? copysign(sqrt(fabs(scaledAxisPos)), scaledAxisPos) : scaledAxisPos));
+                  (scaledAxisPos >= 0.005 ? copysign(pow(fabs(scaledAxisPos), 0.6), scaledAxisPos) : scaledAxisPos));
   return recalcAxisPos * SWITCH_JOYSTICK_MID + SWITCH_JOYSTICK_MID + 1;
 }
